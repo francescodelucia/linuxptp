@@ -53,7 +53,7 @@ void* udpClientThread(void *port)
       printf("%i ",buffer[k]);            
   }
   printf("\n");                
-  printf("%s\n",dataBuffer[k]);
+  printf("%s\n",buffer);
 
   sendto(sockfd, buffer, 1024, 0, (struct sockaddr*)&addr, sizeof(addr));  
 
