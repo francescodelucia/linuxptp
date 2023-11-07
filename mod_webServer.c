@@ -17,7 +17,6 @@
 #include "mod_res.h"
 #include "mod_udpServer.h"
 
-//ciao
 
 const char* WEB_GET = "GET";
 const char* CGI_BIN_PATH = "/cgi-bin/";
