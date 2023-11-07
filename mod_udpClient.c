@@ -22,8 +22,8 @@ void* udpClientThread(void *port)
   memData md;
   
   char *ip = "192.168.0.106";   
-  mod_parse_ip(ip,strlen(ip),md.ip_aspected);
-  mod_parse_ip(ip,strlen(ip),md.ip_received);
+  mod_parse_ip(ip,strlen(ip),&md.ip_aspected);
+  mod_parse_ip(ip,strlen(ip),&md.ip_received);
  
   struct timespec ts;
   timespec_get(&ts, TIME_UTC);
@@ -39,16 +39,11 @@ void* udpClientThread(void *port)
   memset(&addr, '\0', sizeof(addr));
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
-  addr.sin_addr.s_addr = inet_addr(ip);
- 
-
- 
-
+  addr.sin_addr.s_addr = inet_addr(ip); 
  
   bzero(buffer, 1024);
   memcpy(&buffer,&md,sizeof(memData));   
-   printf("----------\n");  
-  //printf("struct_size %i ok!\n",size);
+   printf("----------\n");    
   for(int k=0;k<(512);k++){    
       printf("%i ",buffer[k]);            
   }
