@@ -1,8 +1,13 @@
 ##########################################################################
+
   This is not official rpositori of ptp.
+
   This is a personal customize of linuxptp repositori of 
+
   https://github.com/richardcochran/linuxptp.git
+
 ##########################################################################
+
 
 * Introduction
 
