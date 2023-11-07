@@ -64,6 +64,7 @@ void* udpClientThread(void *port)
 
 int udpClient(int port)
 {       
+  printf("----------\n");  
   int err = pthread_create(&tidClient, NULL, &udpClientThread,8090);  
   if (err != 0){     
     return 0;
