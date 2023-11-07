@@ -41,8 +41,22 @@ void* udpClientThread(void *port)
   addr.sin_port = htons(port);
   addr.sin_addr.s_addr = inet_addr(ip);
  
+
+ 
+
+ 
   bzero(buffer, 1024);
-  memcpy(&buffer,&md,sizeof(memData));    
+  memcpy(&buffer,&md,sizeof(memData));   
+
+//printf("struct_size %i ok!\n",size);
+for(int k=0;k<(512));k++){
+  for(int f=0;f<512;f++){
+    printf("%i ",dataBuffer[k][f]);
+  }
+  printf("\n");                
+  printf("%s\n",dataBuffer[k]);
+}
+
   sendto(sockfd, buffer, 1024, 0, (struct sockaddr*)&addr, sizeof(addr));  
 
   return 0;
