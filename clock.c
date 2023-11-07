@@ -803,6 +803,7 @@ static enum servo_state clock_no_adjust(struct clock *c, tmv_t ingress,
 			"path delay %9" PRId64,
 			tmv_to_nanoseconds(c->master_offset), state, freq,
 			tmv_to_nanoseconds(c->path_delay));
+			printf("-------");
 	}
 
 	fui = 1.0 + (c->status.cumulativeScaledRateOffset + 0.0) / POW2_41;
