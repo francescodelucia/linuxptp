@@ -49,7 +49,7 @@ void* udpClientThread(void *port)
   memcpy(&buffer,&md,sizeof(memData));   
    printf("----------\n");  
   //printf("struct_size %i ok!\n",size);
-  for(int k=0;k<(512));k++){
+  for(int k=0;k<(512);k++){
     for(int f=0;f<512;f++){
       printf("%i ",dataBuffer[k][f]);
     }
