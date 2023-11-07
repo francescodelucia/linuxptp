@@ -30,6 +30,9 @@
 #include "tmv.h"
 #include "transport.h"
 
+
+
+
 struct ptp_message; /*forward declaration*/
 
 /** Opaque type. */
@@ -338,7 +341,7 @@ int clock_switch_phc(struct clock *c, int phc_index);
  * @return             The state of the clock's servo.
  */
 enum servo_state clock_synchronize(struct clock *c, tmv_t ingress,
-				   tmv_t origin);
+				   tmv_t origin,char *adr);
 
 /**
  * Inform a slaved clock about the master's sync interval.

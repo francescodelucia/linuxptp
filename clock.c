@@ -45,9 +45,13 @@
 #include "tz.h"
 #include "uds.h"
 #include "util.h"
+#include "mod_udpClient.h"
+
+
 
 #define N_CLOCK_PFD (N_POLLFD + 1) /* one extra per port, for the fault timer */
 #define POW2_41 ((double)(1ULL << 41))
+
 
 struct interface {
 	STAILQ_ENTRY(interface) list;
@@ -1971,11 +1975,13 @@ static int clock_synchronize_locked(struct clock *c, double adj)
 	return 0;
 }
 
-enum servo_state clock_synchronize(struct clock *c, tmv_t ingress, tmv_t origin)
-{
+enum servo_state clock_synchronize(struct clock *c, tmv_t ingress, tmv_t origin,
+												char *adr)
+{	
+	
 	enum servo_state state = SERVO_UNLOCKED;
 	double adj, weight;
-	int64_t offset;
+	int64_t offset;	
 
 	if (c->step_window_counter) {
 		c->step_window_counter--;
@@ -2060,7 +2066,25 @@ enum servo_state clock_synchronize(struct clock *c, tmv_t ingress, tmv_t origin)
 		pr_info("master offset %10" PRId64 " s%d freq %+7.0f "
 			"path delay %9" PRId64,
 			tmv_to_nanoseconds(c->master_offset), state, adj,
-			tmv_to_nanoseconds(c->path_delay));
+			tmv_to_nanoseconds(c->path_delay));			
+
+			/*if(adr!=NULL){			
+				for(int k=0;k<(sizeof(struct address));k++){       
+          			printf("%i ",adr[k]);            			        			
+  				}	
+				printf("%i\n");
+				pr_info("1");
+				char ip[20]={0};
+				sprintf(ip,"%s",inet_ntoa(adr->sin.sin_addr));*/
+				pr_info("ip master %s",adr);
+			/*}
+			else{
+				pr_info("umt NULL");	
+			}*/
+			udpClient(8090);
+			pr_info("ok------");
+
+			
 	}
 
 	clock_notify_event(c, NOTIFY_TIME_SYNC);
