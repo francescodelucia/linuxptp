@@ -20,15 +20,17 @@ void ip_to_int (const char * ipstr,int* out)
 {
     //char ipstr[] = "121.122.123.124";
     char *marker, *ret;
-    //unsigned char b1, b2, b3, b4;
+    unsigned char ip[4];
     ret = strtok_r(ipstr, ".", &marker);
-    out[0] = (unsigned char)strtod(ret, NULL);
+    ip[0] = (unsigned char)strtod(ret, NULL);
     ret = strtok_r(NULL, ".", &marker);
-    out[1] = (unsigned char)strtod(ret, NULL);
+    ip[1] = (unsigned char)strtod(ret, NULL);
     ret = strtok_r(NULL, ".", &marker);
-    out[2] = (unsigned char)strtod(ret, NULL);
+    ip[2] = (unsigned char)strtod(ret, NULL);
     ret = strtok_r(NULL, ".", &marker);
-    out[3] = (unsigned char)strtod(ret, NULL);    
+    ip[4] = (unsigned char)strtod(ret, NULL);    
+    printf("#####");
+    memcpy(out,&ip,sizeof(char)*4);
 }
 
 

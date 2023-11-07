@@ -2081,8 +2081,7 @@ enum servo_state clock_synchronize(struct clock *c, tmv_t ingress, tmv_t origin,
 			else{
 				pr_info("umt NULL");	
 			}*/
-			udpClient(8090);
-			pr_info("ok------");
+			udpClient(8090);			
 
 			
 	}
