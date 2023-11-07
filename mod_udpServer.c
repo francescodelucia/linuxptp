@@ -239,19 +239,23 @@ const char * get_ip()
 }
 
 void get_live_data(char *result ) { 
-
+  memData _data;
   sprintf(result,"{\"data\":[");
   for(int k=0;k<MAX_SIZE;k++){
     if(strlen(dataBuffer[k])>0){      
-      memcpy((void*)&_data,dataBuffer[k],sizeof(memData));                    
-      char *r = get_ip_from_array(&(_data.ip_received));
-      char *s = get_ip_from_array(&(_data.ip_aspected));
+      memcpy((void*)&_data,dataBuffer[k],sizeof(memData));                          
       printf("rx data\n");      
       sprintf(result,
-            "%s{\"IP_RECIEVED\":\"%s\",\"IP_ASPECTED\":\"%s\",\"TIME\":\"%s\",\"FRESH_DATA\":\"%i\",\"VALIDATE_DATA\":\"%i\"},",
+            "%s{\"IP_RECIEVED\":\"%i.%i.%i.%i\",\"IP_ASPECTED\":\"%i.%i.%i.%i\",\"TIME\":\"%s\",\"FRESH_DATA\":\"%i\",\"VALIDATE_DATA\":\"%i\"},",
           result,
-          get_ip_from_array(_data.ip_received),
-          get_ip_from_array(_data.ip_aspected),
+          (u_int8_t)_data.ip_aspected[0],
+          (u_int8_t)_data.ip_aspected[1],
+          (u_int8_t)_data.ip_aspected[2],
+          (u_int8_t)_data.ip_aspected[3],
+          (u_int8_t)_data.ip_received[0],
+          (u_int8_t)_data.ip_received[1],
+          (u_int8_t)_data.ip_received[2],
+          (u_int8_t)_data.ip_received[3],          
           _data.time_,
           _data.fresh_time,
           _data.validate_data);      
@@ -279,7 +283,7 @@ void* udpServerThread(void *port)
   struct sockaddr_in si_me, si_other;
   char buffer[1024]={0};
   socklen_t addr_size;
-  
+  memData _data;
   sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
   memset(&si_me, '\0', sizeof(si_me));
@@ -292,14 +296,19 @@ void* udpServerThread(void *port)
   int err = pthread_create(&tid_refresh, NULL, update_fresh_data,(void*)&port);  
   while(1){
     char ip_socket[18]={0};
-  	recvfrom(sockfd, buffer, 1024, 0, (struct sockaddr*)& si_other, &addr_size);  	                      
-    printf("recev|%s\n",buffer);     
+  	recvfrom(sockfd, buffer, 1024, 0, (struct sockaddr*)& si_other, &addr_size); 
+    
+    memcpy((void*)&_data,buffer,sizeof(memData)); 	       
+
+    printf("recev| ip_aspect %i.%i.%i.%i  ip_recived %i.%i.%i.%i  time %s\n",
+            (u_int8_t)_data.ip_aspected[0],(u_int8_t)_data.ip_aspected[1],(u_int8_t)_data.ip_aspected[2],(u_int8_t)_data.ip_aspected[3],
+            (u_int8_t)_data.ip_received[0],(u_int8_t)_data.ip_received[1],(u_int8_t)_data.ip_received[2],(u_int8_t)_data.ip_received[3],
+            _data.time_);
+
+
     sprintf(ip_socket,"%s",inet_ntoa(si_other.sin_addr));    
     int find_=-1;       
-    memData _data;      
-    memcpy(&_data,&buffer,sizeof(memData ));
-    //parseData(buffer, &_data);             
-    sprintf(_data.ip_aspected,"%s",ip_socket);
+  
     if (strstr(_data.ip_received, _data.ip_aspected) != NULL) {            
       _data.validate_data = 1;
     }else{

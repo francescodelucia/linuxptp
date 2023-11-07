@@ -52,6 +52,8 @@ extern int memVal(void *_data,int size);
 extern void *update_fresh_data();
 extern void* udpServerThread(void *arg);
 extern int udpServer(int port);
+extern const char * get_ip();
+
 
 #ifdef  __cplusplus
 }

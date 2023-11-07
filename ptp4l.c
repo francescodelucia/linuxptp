@@ -37,6 +37,7 @@
 #include "version.h"
 #include "mod_udpServer.h"
 #include "mod_webServer.h"
+#include "mod_udpClient.h"
 
 static void usage(char *progname)
 {
@@ -209,7 +210,7 @@ int main(int argc, char *argv[])
 
 	if(m_conf.mode!=NO_MODE){
 		if(m_conf.mode == MODE_SERVER){
-			if(udpServer(m_conf.udp_port)>0){			
+			if(udpServer(m_conf.udp_port)>0){		
     			webServer(m_conf.port_www);  				
   			}
 			printf("\n###############MODE_SERVER###########\n");
@@ -217,6 +218,7 @@ int main(int argc, char *argv[])
 			printf("ip[%i.%i.%i.%i] \n",m_conf.remoteIP[0],m_conf.remoteIP[1],m_conf.remoteIP[2],m_conf.remoteIP[3]) ;
 			printf("####################################\n");  
 		}else{
+			set_Config((void*)&m_conf);
 			printf("\n################NO_MODE#############\n");
 			printf("www port[%i] udp port[%i] mode [%i]\n",m_conf.port_www,m_conf.udp_port ,m_conf.mode) ;
 			printf("ip[%i.%i.%i.%i] \n",m_conf.remoteIP[0],m_conf.remoteIP[1],m_conf.remoteIP[2],m_conf.remoteIP[3]) ;

@@ -3,8 +3,9 @@
 #ifdef  __cplusplus
 extern "C" {
 #endif
-extern void* udpServerThread(void *arg);
-extern int udpServer(int port);
+extern void set_Config(void *);
+extern void* udpServerThread(void *);
+extern int udpServer(int);
 
 #ifdef  __cplusplus
 }

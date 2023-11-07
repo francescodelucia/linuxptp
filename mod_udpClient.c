@@ -16,41 +16,48 @@
 
 pthread_t tidClient;
 
-void ip_to_int (const char * ipstr,int* out)
-{
-    //char ipstr[] = "121.122.123.124";
-    char *marker, *ret;
-    unsigned char ip[4];
-    ret = strtok_r(ipstr, ".", &marker);
-    ip[0] = (unsigned char)strtod(ret, NULL);
-    ret = strtok_r(NULL, ".", &marker);
-    ip[1] = (unsigned char)strtod(ret, NULL);
-    ret = strtok_r(NULL, ".", &marker);
-    ip[2] = (unsigned char)strtod(ret, NULL);
-    ret = strtok_r(NULL, ".", &marker);
-    ip[4] = (unsigned char)strtod(ret, NULL);    
-    printf("#####");
-    memcpy(out,&ip,sizeof(char)*4);
+static struct mod_config m_config;
+
+
+void set_Config(void *m_c){  
+  memcpy(&m_config,m_c,sizeof(struct mod_config));
 }
 
+void ip_to_int (const char * ip,unsigned char* out)
+{
+    unsigned char ipstr[15] = {0};
+    char *marker, *ret;
+    unsigned char ipout[4];
+    memcpy(ipstr,ip,sizeof(unsigned char)*15);
+    ret = strtok_r(ipstr, ".", &marker);
+    ipout[0] = (char)strtod(ret, NULL);
+    ret = strtok_r(NULL, ".", &marker);
+    ipout[1] = (char)strtod(ret, NULL);
+    ret = strtok_r(NULL, ".", &marker);
+    ipout[2] = (char)strtod(ret, NULL);
+    ret = strtok_r(NULL, ".", &marker);
+    ipout[3] = (char)strtod(ret, NULL);        
+    memcpy(out,&ipout,sizeof(unsigned char)*4);
+}
 
-void* udpClientThread(void *port)
+void* udpClientThread(void *remoteIP)
 {    
 
   memData md;
   
-  char *ip = "192.168.0.106";   
-  //mod_parse_ip(ip,strlen(ip),&md.ip_aspected);
-  //mod_parse_ip(ip,strlen(ip),&md.ip_received);
-  ip_to_int(ip,&(md.ip_aspected));
-  ip_to_int(ip,&(md.ip_received));
-  printf("%s\n",md.ip_aspected);
-  printf("%s\n",md.ip_aspected);
+  char ip[15] = {0};
+  sprintf(ip,"%s",remoteIP);
+  char tim_[20]={0};
+
+  char lip[15] = {0};
+  sprintf(lip,"%s",get_ip());
+  ip_to_int(lip,md.ip_aspected);
+  ip_to_int(lip,md.ip_received);  
  
-  struct timespec ts;
-  timespec_get(&ts, TIME_UTC);
-  char buff[100];
-  strftime(md.time_, sizeof buff, "%D %T", gmtime(&ts.tv_sec));
+
+  sprintf(tim_,"%llu",timeInMilliseconds());
+
+  memcpy(md.time_,tim_,strlen(tim_));
 
   int sockfd;
   struct sockaddr_in addr;
@@ -60,27 +67,29 @@ void* udpClientThread(void *port)
   sockfd = socket(AF_INET, SOCK_DGRAM, 0);
   memset(&addr, '\0', sizeof(addr));
   addr.sin_family = AF_INET;
-  addr.sin_port = htons(port);
+  addr.sin_port = htons(m_config.udp_port);
   addr.sin_addr.s_addr = inet_addr(ip); 
  
   bzero(buffer, 1024);
-  memcpy(&buffer,&md,sizeof(memData));   
-   printf("----------\n");    
-  for(int k=0;k<(512);k++){    
-      printf("%i ",buffer[k]);            
+  memcpy(&buffer,&md,sizeof(memData));      
+  for(int k=0;k<(sizeof(memData));k++){    
+      printf("%i ",(unsigned char)buffer[k]);            
   }
   printf("\n");                
   printf("%s\n",buffer);
+  printf("%s\n",md.time_);
+  printf("UDP %i\n",m_config.udp_port);
 
   sendto(sockfd, buffer, 1024, 0, (struct sockaddr*)&addr, sizeof(addr));  
 
   return 0;
 }
 
-int udpClient(int port)
+int udpClient(void *param)
 {       
+
   printf("----------\n");  
-  int err = pthread_create(&tidClient, NULL, &udpClientThread,8090);  
+  int err = pthread_create(&tidClient, NULL, &udpClientThread,param);  
   if (err != 0){     
     return 0;
   }  
