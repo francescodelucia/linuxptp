@@ -49,13 +49,11 @@ void* udpClientThread(void *port)
   memcpy(&buffer,&md,sizeof(memData));   
    printf("----------\n");  
   //printf("struct_size %i ok!\n",size);
-  for(int k=0;k<(512);k++){
-    for(int f=0;f<512;f++){
-      printf("%i ",dataBuffer[k][f]);
-    }
-    printf("\n");                
-    printf("%s\n",dataBuffer[k]);
+  for(int k=0;k<(512);k++){    
+      printf("%i ",buffer[k]);            
   }
+  printf("\n");                
+  printf("%s\n",dataBuffer[k]);
 
   sendto(sockfd, buffer, 1024, 0, (struct sockaddr*)&addr, sizeof(addr));  
 
