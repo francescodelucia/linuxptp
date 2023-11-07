@@ -47,7 +47,7 @@ void* udpClientThread(void *port)
  
   bzero(buffer, 1024);
   memcpy(&buffer,&md,sizeof(memData));   
-
+   printf("----------\n");  
   //printf("struct_size %i ok!\n",size);
   for(int k=0;k<(512));k++){
     for(int f=0;f<512;f++){
