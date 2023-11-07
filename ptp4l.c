@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
 			goto out;
 		}
 	}	
-
+	/*#########################################*/
 	if(m_conf.mode!=NO_MODE){
 		if(m_conf.mode == MODE_SERVER){
 			if(udpServer(m_conf.udp_port)>0){		
