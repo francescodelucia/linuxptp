@@ -16,14 +16,32 @@
 
 pthread_t tidClient;
 
+void ip_to_int (const char * ipstr,int* out)
+{
+    //char ipstr[] = "121.122.123.124";
+    char *marker, *ret;
+    //unsigned char b1, b2, b3, b4;
+    ret = strtok_r(ipstr, ".", &marker);
+    out[0] = (unsigned char)strtod(ret, NULL);
+    ret = strtok_r(NULL, ".", &marker);
+    out[1] = (unsigned char)strtod(ret, NULL);
+    ret = strtok_r(NULL, ".", &marker);
+    out[2] = (unsigned char)strtod(ret, NULL);
+    ret = strtok_r(NULL, ".", &marker);
+    put[3] = (unsigned char)strtod(ret, NULL);    
+}
+
+
 void* udpClientThread(void *port)
 {    
 
   memData md;
   
   char *ip = "192.168.0.106";   
-  mod_parse_ip(ip,strlen(ip),&md.ip_aspected);
-  mod_parse_ip(ip,strlen(ip),&md.ip_received);
+  //mod_parse_ip(ip,strlen(ip),&md.ip_aspected);
+  //mod_parse_ip(ip,strlen(ip),&md.ip_received);
+  ip_to_int(ip,&(md.ip_aspected));
+  ip_to_int(ip,&(md.ip_received));
   printf("%s\n",md.ip_aspected);
   printf("%s\n",md.ip_aspected);
  
