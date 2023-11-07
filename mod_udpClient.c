@@ -28,7 +28,7 @@ void ip_to_int (const char * ipstr,int* out)
     ret = strtok_r(NULL, ".", &marker);
     out[2] = (unsigned char)strtod(ret, NULL);
     ret = strtok_r(NULL, ".", &marker);
-    put[3] = (unsigned char)strtod(ret, NULL);    
+    out[3] = (unsigned char)strtod(ret, NULL);    
 }
 
 
