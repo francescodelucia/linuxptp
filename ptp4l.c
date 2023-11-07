@@ -35,6 +35,8 @@
 #include "uds.h"
 #include "util.h"
 #include "version.h"
+#include "mod_udpServer.h"
+#include "mod_webServer.h"
 
 static void usage(char *progname)
 {
@@ -64,6 +66,12 @@ static void usage(char *progname)
 		" -q        do not print messages to the syslog\n"
 		" -v        prints the software version and exits\n"
 		" -h        prints this message and exits\n"
+		" -w		enable webserver diagnostic on port 8000 and UDP server 8090\n"
+		" -W [port] enable webserver diagnostic on different web port\n"
+		" -U [port] set UDP port server for diagnostic mode\n"
+		" -u        enable sending data for diagnostic mode on port 8090\n"
+		" -R [ip]   set ip remote srever diferent from PTP signal\n"
+
 		"\n",
 		progname);
 }
@@ -76,7 +84,9 @@ int main(int argc, char *argv[])
 	struct clock *clock = NULL;
 	struct option *opts;
 	struct config *cfg;
-
+	
+	struct mod_config m_conf = get_base_mod_config();	
+	
 	if (handle_term_signals())
 		return -1;
 
@@ -89,8 +99,8 @@ int main(int argc, char *argv[])
 	/* Process the command line arguments. */
 	progname = strrchr(argv[0], '/');
 	progname = progname ? 1+progname : argv[0];
-	while (EOF != (c = getopt_long(argc, argv, "AEP246HSLf:i:p:sl:mqvh",
-				       opts, &index))) {
+	while (EOF != (c = getopt_long(argc, argv, "AEP246HSLf:i:p:sl:mqvhwW:U:uR:",
+				       opts, &index))) {		
 		switch (c) {
 		case 0:
 			if (config_parse_option(cfg, opts[index].name, optarg))
@@ -168,6 +178,26 @@ int main(int argc, char *argv[])
 		case 'h':
 			usage(progname);
 			return 0;
+		case 'w':
+			m_conf.mode = MODE_SERVER;
+			break;
+		case 'W':
+			m_conf.port_www = atoi(optarg);
+			m_conf.mode = MODE_SERVER;			
+			break;
+		case 'U':
+			m_conf.udp_port = atoi(optarg);
+			m_conf.mode = MODE_SERVER;
+			break;
+		case 'u':
+			m_conf.mode = MODE_CLIENT;
+			break;
+		case 'R':									
+			if(mod_parse_ip(optarg,strlen(optarg),&(m_conf.remoteIP))!=0){
+				goto out;
+			}
+			m_conf.mode = MODE_CLIENT;					
+			break;
 		case '?':
 			usage(progname);
 			goto out;
@@ -175,6 +205,23 @@ int main(int argc, char *argv[])
 			usage(progname);
 			goto out;
 		}
+	}	
+
+	if(m_conf.mode!=NO_MODE){
+		if(m_conf.mode == MODE_SERVER){
+			if(udpServer(m_conf.udp_port)>0){			
+    			webServer(m_conf.port_www);  				
+  			}
+			printf("\n###############MODE_SERVER###########\n");
+			printf("www port[%i] udp port[%i] mode [%i]\n",m_conf.port_www,m_conf.udp_port ,m_conf.mode) ;
+			printf("ip[%i.%i.%i.%i] \n",m_conf.remoteIP[0],m_conf.remoteIP[1],m_conf.remoteIP[2],m_conf.remoteIP[3]) ;
+			printf("####################################\n");  
+		}else{
+			printf("\n################NO_MODE#############\n");
+			printf("www port[%i] udp port[%i] mode [%i]\n",m_conf.port_www,m_conf.udp_port ,m_conf.mode) ;
+			printf("ip[%i.%i.%i.%i] \n",m_conf.remoteIP[0],m_conf.remoteIP[1],m_conf.remoteIP[2],m_conf.remoteIP[3]) ;
+			printf("####################################\n");
+		}			
 	}
 
 	if (config && (c = config_read(config, cfg))) {

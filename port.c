@@ -1349,7 +1349,7 @@ static void port_synchronize(struct port *p,
 			     tmv_t ingress_ts,
 			     struct timestamp origin_ts,
 			     Integer64 correction1, Integer64 correction2,
-			     Integer8 sync_interval)
+			     Integer8 sync_interval,struct ptp_message *m)
 {
 	enum servo_state state, last_state;
 	tmv_t t1, t1c, t2, c1, c2;
@@ -1374,7 +1374,13 @@ static void port_synchronize(struct port *p,
 	}
 
 	last_state = clock_servo_state(p->clock);
-	state = clock_synchronize(p->clock, t2, t1c);
+	//state = clock_synchronize(p->clock, t2, t1c);	
+	
+	//if(m!=NULL){	
+	char *ip = inet_ntoa(m->address.sin.sin_addr);
+	pr_info("ip master %s",ip);
+	
+	state = clock_synchronize(p->clock, t2, t1c, ip);	
 	switch (state) {
 	case SERVO_UNLOCKED:
 		port_dispatch(p, EV_SYNCHRONIZATION_FAULT, 0);
@@ -1473,12 +1479,12 @@ static void port_syfufsm(struct port *p, enum syfu_event event,
 			p->service_stats.followup_mismatch++;
 			break;
 		case FUP_MATCH:
-			syn = p->last_syncfup;
+			syn = p->last_syncfup;	
 			port_synchronize(p, syn->header.sequenceId,
 					 syn->hwts.ts, m->ts.pdu,
 					 syn->header.correction,
 					 m->header.correction,
-					 m->header.logMessageInterval);
+					 m->header.logMessageInterval,m);
 			msg_put(p->last_syncfup);
 			p->syfu = SF_EMPTY;
 			break;
@@ -1501,7 +1507,7 @@ static void port_syfufsm(struct port *p, enum syfu_event event,
 					 m->hwts.ts, fup->ts.pdu,
 					 m->header.correction,
 					 fup->header.correction,
-					 m->header.logMessageInterval);
+					 m->header.logMessageInterval,m);
 			msg_put(p->last_syncfup);
 			p->syfu = SF_EMPTY;
 			break;
@@ -2215,6 +2221,7 @@ void process_delay_resp(struct port *p, struct ptp_message *m)
 
 void process_follow_up(struct port *p, struct ptp_message *m)
 {
+	
 	enum syfu_event event;
 	switch (p->state) {
 	case PS_INITIALIZING:
@@ -2561,7 +2568,7 @@ void process_sync(struct port *p, struct ptp_message *m)
 		port_synchronize(p, m->header.sequenceId,
 				 m->hwts.ts, m->ts.pdu,
 				 m->header.correction, 0,
-				 m->header.logMessageInterval);
+				 m->header.logMessageInterval,m);
 		flush_last_sync(p);
 		return;
 	}
