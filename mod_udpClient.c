@@ -21,7 +21,7 @@ void* udpClientThread(void *port)
 
   memData md;
   
-  char *ip = "192.168.0.103";   
+  char *ip = "192.168.0.106";   
   mod_parse_ip(ip,strlen(ip),md.ip_aspected);
   mod_parse_ip(ip,strlen(ip),md.ip_received);
  
@@ -48,14 +48,14 @@ void* udpClientThread(void *port)
   bzero(buffer, 1024);
   memcpy(&buffer,&md,sizeof(memData));   
 
-//printf("struct_size %i ok!\n",size);
-for(int k=0;k<(512));k++){
-  for(int f=0;f<512;f++){
-    printf("%i ",dataBuffer[k][f]);
+  //printf("struct_size %i ok!\n",size);
+  for(int k=0;k<(512));k++){
+    for(int f=0;f<512;f++){
+      printf("%i ",dataBuffer[k][f]);
+    }
+    printf("\n");                
+    printf("%s\n",dataBuffer[k]);
   }
-  printf("\n");                
-  printf("%s\n",dataBuffer[k]);
-}
 
   sendto(sockfd, buffer, 1024, 0, (struct sockaddr*)&addr, sizeof(addr));  
 
