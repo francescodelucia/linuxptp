@@ -24,6 +24,8 @@ void* udpClientThread(void *port)
   char *ip = "192.168.0.106";   
   mod_parse_ip(ip,strlen(ip),&md.ip_aspected);
   mod_parse_ip(ip,strlen(ip),&md.ip_received);
+  printf("%s\n",md.ip_aspected);
+  printf("%s\n",md.ip_aspected);
  
   struct timespec ts;
   timespec_get(&ts, TIME_UTC);
