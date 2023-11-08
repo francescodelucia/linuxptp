@@ -11,7 +11,10 @@
 //#include "mod_const.h"
 #include "mod_udpServer.h"
 
+#define DMEMORY sizeof(memData)
+
 memData _data;
+serverData _sData;
 
 int struct_size=0;
 
@@ -20,9 +23,33 @@ pthread_t tid_refresh;
 
 char _NetIp[20]={0};
 
-char dataBuffer[MAX_SIZE][MAX_SIZE]={0};
+//char dataBuffer[MAX_SIZE][MAX_SIZE]={0};
+char dataBuffer[MAX_SIZE][DMEMORY]={0};
 
 
+
+void updateServerData(serverData *sD){
+
+  if(strlen(sD->hostname)>0)
+  {
+    char host_name[256]={0};
+    struct hostent *host_entry;
+    int ihost;
+    ihost = gethostname(host_name,256);
+    host_entry = gethostbyname(host_name);  
+    sprintf(sD->hostname,"%s",host_name);   
+  }   
+  sD->time = timeInMilliseconds();      
+  if(sD->ip[0]==0 & sD->ip[1]==0 && sD->ip[2]==0 && sD->ip[3]==0){
+    char r[4];
+    memcpy(r,get_ip(),4);       
+    sD->ip[0] = r[0];
+    sD->ip[1] = r[1];
+    sD->ip[2] = r[2];
+    sD->ip[3] = r[3];
+  }
+  
+}
 static void saveFile(void* filename,void* data){
     FILE *fp = NULL;
     char buffer[MAX_SIZE] = {0};
@@ -117,10 +144,10 @@ char *get_ip_from_array(char *ip){
   return &ret;
 }
 
-void printBuffer(int *size){
-  printf("struct_size %i ok!\n",size);
-  for(int k=0;k<(*size);k++){
-        for(int f=0;f<40;f++){
+void printBufferFull(int size){
+  //printf("struct_size %i ok!\n",size);
+  for(int k=0;k<(size);k++){
+        for(int f=0;f<DMEMORY;f++){
           printf("%i ",dataBuffer[k][f]);
         }
         printf("\n");                
@@ -128,6 +155,15 @@ void printBuffer(int *size){
   }
 } 
   
+void printBufferSegment(int pos){
+  printf("struct_pos %i ok!\n",pos);
+  for(int k=0;k<DMEMORY;k++){        
+    printf("%i ",dataBuffer[pos][k]);        
+  }
+  printf("\n");                
+  printf("%s\n",dataBuffer[pos]);
+} 
+
 void printStringDebug(char *str){  
   printf("printStringDebug\n");
   for(int k=0;k<strlen(str);k++){            
@@ -170,12 +206,15 @@ void parseData(char* buff,void *_data){
   }  
 }
 
-int findIp(void*_data,int *struct_size){          
+int findIp(void*_data,int struct_size){          
 
-  for(int y=0;y<=*struct_size+1;y++){
-    printf("%i\n",*struct_size);
+  for(int y=0;y<=struct_size+1;y++){
+    //printf("struct_size %i\n",struct_size);
     memData *_buff=(struct memData*)dataBuffer[y];    
-    if (strstr(((memData*)_data)->ip_received, _buff->ip_received) != NULL) {                  
+    if (((memData*)_data)->ip_received[0] == _buff->ip_received[0] &&  
+       ((memData*)_data)->ip_received[1] == _buff->ip_received[1] &&   
+        ((memData*)_data)->ip_received[2] == _buff->ip_received[2] &&   
+        ((memData*)_data)->ip_received[3] == _buff->ip_received[3] ) {                  
       ((memData*)_data)->fresh_time = 0;
       return y;              
     }            
@@ -185,26 +224,16 @@ int findIp(void*_data,int *struct_size){
 
 int memVal(void *_data,int size)
 {
-  if(strlen(((memData*)_data)->ip_received)!=0 && strlen(((memData*)_data)->time_)!=0){        
-    memcpy((void*)dataBuffer[size],((memData*)_data),sizeof(memData));     
+  //if(strlen(((memData*)_data)->ip_received)!=0 && strlen(((memData*)_data)->time_)!=0){        
+    memcpy((void*)dataBuffer[size],((memData*)_data),DMEMORY);     
     return 1;
-  }
-  return 0;
+  //}
+  //return 0;
 }
-void *update_fresh_data(){
-  while(1){
-    for(int y=0;y<=struct_size+1;y++){    
-    memData *_buff=(struct memData*)dataBuffer[y];        
-      _buff->fresh_time = _buff->fresh_time +1;      
-    }            
-    sleep(1);
-  }
-   return NULL;
-}
+
 
 long long timeInMilliseconds(void) {
     struct timeval tv;
-
     gettimeofday(&tv,NULL);
     return (((long long)tv.tv_sec)*1000)+(tv.tv_usec/1000);
 }
@@ -240,42 +269,84 @@ const char * get_ip()
 
 void get_live_data(char *result ) { 
   memData _data;
+  serverData _sD;
+  updateServerData(&_sD);
   sprintf(result,"{\"data\":[");
   for(int k=0;k<MAX_SIZE;k++){
     if(strlen(dataBuffer[k])>0){      
-      memcpy((void*)&_data,dataBuffer[k],sizeof(memData));                          
-      printf("rx data\n");      
+      memcpy((void*)&_data,dataBuffer[k],DMEMORY);                                    
       sprintf(result,
-            "%s{\"IP_RECIEVED\":\"%i.%i.%i.%i\",\"IP_ASPECTED\":\"%i.%i.%i.%i\",\"TIME\":\"%s\",\"FRESH_DATA\":\"%i\",\"VALIDATE_DATA\":\"%i\"},",
+            "%s{\"IP_CLIENT\":\"%i.%i.%i.%i\",\"TIME\":\"%llu\",\"DIFF_SERVER\":\"%llu\",\"FRESH_DATA\":\"%i\"},",
           result,
-          (u_int8_t)_data.ip_aspected[0],
-          (u_int8_t)_data.ip_aspected[1],
-          (u_int8_t)_data.ip_aspected[2],
-          (u_int8_t)_data.ip_aspected[3],
           (u_int8_t)_data.ip_received[0],
           (u_int8_t)_data.ip_received[1],
           (u_int8_t)_data.ip_received[2],
           (u_int8_t)_data.ip_received[3],          
           _data.time_,
-          _data.fresh_time,
-          _data.validate_data);      
+          abs(_data.time_ - _sD.time),
+          _data.fresh_time
+      );      
     }
   }
   if(result[strlen(result)-1]==','){
     result[strlen(result)-1]=0;  
-  }
-  char host_name[256]={0};
-  struct hostent *host_entry;
-  int ihost;
-  ihost = gethostname(host_name,256);
-  host_entry = gethostbyname(host_name);  
-  sprintf(result,"%s],\"local_millisecond\":\"%llu\"",result,timeInMilliseconds());  
-  sprintf(result,"%s,\"host_name\":\"%s\"",result,host_name);    
-  sprintf(result,"%s,\"host_ip\":\"%s\"",result,get_ip());      
+  }  
+  sprintf(result,"%s],\"local_millisecond\":\"%llu\"",result,_sD.time);  
+  sprintf(result,"%s,\"host_name\":\"%s\"",result,_sD.hostname);    
+  sprintf(result,"%s,\"host_ip\":\"%s\"",result,_sD.ip);      
   sprintf(result,"%s}",result);   
 }
 
+void removeData(int index_to_remove){
+  memset(dataBuffer[index_to_remove],0,DMEMORY);
+}
 
+int checkMemoryVoid(int index_to_remove){
+  //printf("####checkMemoryVoid - 1\n");      
+  int ret = 0;
+  //printBufferSegment(index_to_remove);
+  for(int x=0;x<DMEMORY;x++){
+    //printf("####checkMemoryVoid - 2 %i\n",x);      
+    ret += dataBuffer[index_to_remove][x];
+    if(ret > 0){
+      return -1;
+    }
+  }
+  return 1;
+}
+
+void storeData(memData *_data){//,int *struct_size){
+  int find_=-1;   
+  find_ = findIp(_data,struct_size);               
+  if(find_!=-1){    
+    memVal(_data,find_);
+  }                
+  if(find_==-1){      
+    for(int k=0;k<=struct_size;k++){      
+      if(checkMemoryVoid(k) == 1){
+        memVal(_data,k);          
+      }else{
+        struct_size++;
+      }     
+    }                          
+  }  
+}
+
+
+void *update_fresh_data(){
+  while(1){
+    for(int y=0;y<=struct_size+1;y++){    
+      memData *_buff=(struct memData*)dataBuffer[y];        
+      if(_buff->fresh_time >= 30){
+          removeData(y);
+      }else{
+        _buff->fresh_time = _buff->fresh_time +1;      
+      }
+    }            
+    sleep(1);
+  }
+   return NULL;
+}
 
 void* udpServerThread(void *port)
 {    
@@ -294,34 +365,24 @@ void* udpServerThread(void *port)
   bind(sockfd, (struct sockaddr*)&si_me, sizeof(si_me));
   addr_size = sizeof(si_other);  
   int err = pthread_create(&tid_refresh, NULL, update_fresh_data,(void*)&port);  
+
   while(1){
-    char ip_socket[18]={0};
+    //char ip_socket[18]={0};
   	recvfrom(sockfd, buffer, 1024, 0, (struct sockaddr*)& si_other, &addr_size); 
-    
-    memcpy((void*)&_data,buffer,sizeof(memData)); 	       
-
-    printf("recev| ip_aspect %i.%i.%i.%i  ip_recived %i.%i.%i.%i  time %s\n",
-            (u_int8_t)_data.ip_aspected[0],(u_int8_t)_data.ip_aspected[1],(u_int8_t)_data.ip_aspected[2],(u_int8_t)_data.ip_aspected[3],
-            (u_int8_t)_data.ip_received[0],(u_int8_t)_data.ip_received[1],(u_int8_t)_data.ip_received[2],(u_int8_t)_data.ip_received[3],
-            _data.time_);
-
-
-    sprintf(ip_socket,"%s",inet_ntoa(si_other.sin_addr));    
-    int find_=-1;       
   
-    if (strstr(_data.ip_received, _data.ip_aspected) != NULL) {            
-      _data.validate_data = 1;
-    }else{
-      _data.validate_data = 0;
-    }
-    find_ = findIp(&_data,&struct_size);             
-    if(find_!=-1){ //valore gia presente                               
-      memVal(&_data,find_);
-    }                    
-    if(find_==-1){ //nuovo inserimento                   
-      memVal(&_data,struct_size);  
-      struct_size++;              
-    }
+    memcpy((void*)&_data,buffer,sizeof(memData)); 	           
+    /*
+    printf("recev| ip_received  %i.%i.%i.%i  time %llu\n",
+            (u_int8_t)_data.ip_received[0],(u_int8_t)_data.ip_received[1],(u_int8_t)_data.ip_received[2],(u_int8_t)_data.ip_received[3],            
+            _data.time_);    
+    */
+    //sprintf(ip_socket,"%s",inet_ntoa(si_other.sin_addr));    
+
+    _data.validate_data = 1;
+    
+    //printBufferFull(struct_size);
+    storeData(&_data);
+    //printBufferFull(struct_size);    
     memset(buffer,0,MAX_SIZE);                      
   }
   return NULL;
