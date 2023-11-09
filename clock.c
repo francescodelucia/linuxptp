@@ -2081,8 +2081,7 @@ enum servo_state clock_synchronize(struct clock *c, tmv_t ingress, tmv_t origin,
 		sprintf(_data,"%s:%i",adr,mod_con)
 		*/
 		
-		udpClient(adr);			
-
+		updateData(adr);			
 			
 	}
 

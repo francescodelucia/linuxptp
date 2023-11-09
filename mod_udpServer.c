@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <netdb.h>
+#include <sys/ioctl.h>
+#include <netinet/in.h>
+#include <net/if.h>
 //#include "mod_const.h"
 #include "mod_udpServer.h"
 
@@ -23,10 +26,7 @@ pthread_t tid_refresh;
 
 char _NetIp[20]={0};
 
-//char dataBuffer[MAX_SIZE][MAX_SIZE]={0};
 char dataBuffer[MAX_SIZE][DMEMORY]={0};
-
-
 
 void updateServerData(serverData *sD){
 
@@ -42,13 +42,12 @@ void updateServerData(serverData *sD){
   sD->time = timeInMilliseconds();      
   if(sD->ip[0]==0 & sD->ip[1]==0 && sD->ip[2]==0 && sD->ip[3]==0){
     char r[4];
-    memcpy(r,get_ip(),4);       
+    getIP(&r);          
     sD->ip[0] = r[0];
     sD->ip[1] = r[1];
     sD->ip[2] = r[2];
     sD->ip[3] = r[3];
-  }
-  
+  }  
 }
 static void saveFile(void* filename,void* data){
     FILE *fp = NULL;
@@ -173,6 +172,14 @@ void printStringDebug(char *str){
   printf("%s\n",str);
 } 
 
+void printMemDebug(char *str){  
+  printf("printStringDebug\n");
+  for(int k=0;k<DMEMORY;k++){            
+    printf("%i ",(uint8_t)str[k]);    
+  }
+  printf("\n");                      
+} 
+
 
 void replace_char_from_string(char from, char to, char *str)
 {
@@ -206,25 +213,26 @@ void parseData(char* buff,void *_data){
   }  
 }
 
-int findIp(void*_data,int struct_size){          
-
-  for(int y=0;y<=struct_size+1;y++){
-    //printf("struct_size %i\n",struct_size);
-    memData *_buff=(struct memData*)dataBuffer[y];    
-    if (((memData*)_data)->ip_received[0] == _buff->ip_received[0] &&  
-       ((memData*)_data)->ip_received[1] == _buff->ip_received[1] &&   
-        ((memData*)_data)->ip_received[2] == _buff->ip_received[2] &&   
-        ((memData*)_data)->ip_received[3] == _buff->ip_received[3] ) {                  
-      ((memData*)_data)->fresh_time = 0;
-      return y;              
-    }            
+int findIp(void*_data){            
+  for(int y=0;y<=MAX_SIZE;y++){    
+    if(((memData*)dataBuffer[y])->isUsed==IS_NOT_VOID){   
+      if (((memData*)_data)->ip_received[0] == ((memData*)dataBuffer[y])->ip_received[0] &&  
+         ((memData*)_data)->ip_received[1] == ((memData*)dataBuffer[y])->ip_received[1] &&   
+          ((memData*)_data)->ip_received[2] == ((memData*)dataBuffer[y])->ip_received[2] &&   
+          ((memData*)_data)->ip_received[3] == ((memData*)dataBuffer[y])->ip_received[3] ) {                  
+          memset(&(((memData*)_data)->fresh_time),0,1);
+          return y;              
+      }    
+    }
   }
-  return -1;
+  return NO_DATA_FOUND;
 }
 
 int memVal(void *_data,int size)
 {
-  //if(strlen(((memData*)_data)->ip_received)!=0 && strlen(((memData*)_data)->time_)!=0){        
+  printf("size_pos %i",size);
+  //if(strlen(((memData*)_data)->ip_received)!=0 && strlen(((memData*)_data)->time_)!=0){    
+    printMemDebug(_data);    
     memcpy((void*)dataBuffer[size],((memData*)_data),DMEMORY);     
     return 1;
   //}
@@ -236,6 +244,43 @@ long long timeInMilliseconds(void) {
     struct timeval tv;
     gettimeofday(&tv,NULL);
     return (((long long)tv.tv_sec)*1000)+(tv.tv_usec/1000);
+}
+
+void getIP(unsigned char *out ){
+  
+  unsigned char ipstr[15] = {0};
+  char *marker, *ret;
+  unsigned char ipout[4];
+  //unsigned char out[4]={0};
+  int fd;
+  struct ifreq ifr;
+
+  fd = socket(AF_INET, SOCK_DGRAM, 0);
+
+  ifr.ifr_addr.sa_family = AF_INET;
+
+  strncpy(ifr.ifr_name, "ens33", IFNAMSIZ-1);
+  ioctl(fd, SIOCGIFADDR, &ifr);
+  close(fd);
+
+  char ip[20]={0};
+  sprintf(ip,"%s", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+
+  if(ip!=NULL){      
+      memcpy(ipstr,ip,sizeof(unsigned char)*15);
+      ret = strtok_r(ipstr, ".", &marker);      
+      ipout[0] = (char)strtod(ret, NULL);
+      ret = strtok_r(NULL, ".", &marker);      
+      ipout[1] = (char)strtod(ret, NULL);
+      ret = strtok_r(NULL, ".", &marker);      
+      ipout[2] = (char)strtod(ret, NULL);
+      ret = strtok_r(NULL, ".", &marker);      
+      ipout[3] = (char)strtod(ret, NULL);            
+      memcpy(out,&ipout,sizeof(unsigned char)*4);  
+    }else{
+      memset(out,0,4);
+  }
+  //printf("getIP %i.%i.%i.%i\n",out[0],out[1],out[2],out[3]);  
 }
 
 const char * get_ip()
@@ -263,7 +308,7 @@ const char * get_ip()
     char *ret = malloc(strlen(buffer) + 1);
     memcpy(ret, buffer, strlen(buffer));
     ret[strlen(buffer)] = '\0';
-    printf("%s\n", ret);
+    //printf("%s\n", ret);
     return ret;
 }
 
@@ -273,8 +318,9 @@ void get_live_data(char *result ) {
   updateServerData(&_sD);
   sprintf(result,"{\"data\":[");
   for(int k=0;k<MAX_SIZE;k++){
-    if(strlen(dataBuffer[k])>0){      
+    if(checkMemoryVoid(k)==IS_NOT_VOID){      
       memcpy((void*)&_data,dataBuffer[k],DMEMORY);                                    
+      //printMemDebug(dataBuffer[k]);
       sprintf(result,
             "%s{\"IP_CLIENT\":\"%i.%i.%i.%i\",\"TIME\":\"%llu\",\"DIFF_SERVER\":\"%llu\",\"FRESH_DATA\":\"%i\"},",
           result,
@@ -290,10 +336,10 @@ void get_live_data(char *result ) {
   }
   if(result[strlen(result)-1]==','){
     result[strlen(result)-1]=0;  
-  }  
+  }
   sprintf(result,"%s],\"local_millisecond\":\"%llu\"",result,_sD.time);  
   sprintf(result,"%s,\"host_name\":\"%s\"",result,_sD.hostname);    
-  sprintf(result,"%s,\"host_ip\":\"%s\"",result,_sD.ip);      
+  sprintf(result,"%s,\"host_ip\":\"%i.%i.%i.%i\"",result,_sD.ip[0],_sD.ip[1],_sD.ip[2],_sD.ip[3]);      
   sprintf(result,"%s}",result);   
 }
 
@@ -301,33 +347,25 @@ void removeData(int index_to_remove){
   memset(dataBuffer[index_to_remove],0,DMEMORY);
 }
 
-int checkMemoryVoid(int index_to_remove){
-  //printf("####checkMemoryVoid - 1\n");      
-  int ret = 0;
-  //printBufferSegment(index_to_remove);
-  for(int x=0;x<DMEMORY;x++){
-    //printf("####checkMemoryVoid - 2 %i\n",x);      
-    ret += dataBuffer[index_to_remove][x];
-    if(ret > 0){
-      return -1;
-    }
-  }
-  return 1;
+int checkMemoryVoid(int index_to_check){  
+  memData *m=dataBuffer[index_to_check];
+  return m->isUsed; 
 }
 
 void storeData(memData *_data){//,int *struct_size){
-  int find_=-1;   
-  find_ = findIp(_data,struct_size);               
-  if(find_!=-1){    
+  int find_=NO_DATA_FOUND;   
+  
+  find_ = findIp(_data);  
+  printf("---|%i|\n",find_);
+  //printMemDebug(_data);             
+  if(find_!=NO_DATA_FOUND){    
     memVal(_data,find_);
-  }                
-  if(find_==-1){      
-    for(int k=0;k<=struct_size;k++){      
-      if(checkMemoryVoid(k) == 1){
-        memVal(_data,k);          
-      }else{
-        struct_size++;
-      }     
+  }else{                   
+    for(int k=0;k<=MAX_SIZE;k++){      
+      if(checkMemoryVoid(k) != IS_NOT_VOID){
+        memVal(_data,k); 
+        return;         
+      }      
     }                          
   }  
 }
@@ -335,12 +373,15 @@ void storeData(memData *_data){//,int *struct_size){
 
 void *update_fresh_data(){
   while(1){
-    for(int y=0;y<=struct_size+1;y++){    
+    for(int y=0;y<=MAX_SIZE;y++){    
       memData *_buff=(struct memData*)dataBuffer[y];        
       if(_buff->fresh_time >= 30){
           removeData(y);
       }else{
-        _buff->fresh_time = _buff->fresh_time +1;      
+         if(checkMemoryVoid(y) == IS_NOT_VOID){
+          //_buff->fresh_time = _buff->fresh_time +1;   
+          memset((_buff->fresh_time),(_buff->fresh_time+1),0);      
+         }
       }
     }            
     sleep(1);

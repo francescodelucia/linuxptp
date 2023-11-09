@@ -219,6 +219,7 @@ int main(int argc, char *argv[])
 			printf("####################################\n");  
 		}else{
 			set_Config((void*)&m_conf);
+			udpClient(NULL);
 			printf("\n################NO_MODE#############\n");
 			printf("www port[%i] udp port[%i] mode [%i]\n",m_conf.port_www,m_conf.udp_port ,m_conf.mode) ;
 			printf("ip[%i.%i.%i.%i] \n",m_conf.remoteIP[0],m_conf.remoteIP[1],m_conf.remoteIP[2],m_conf.remoteIP[3]) ;

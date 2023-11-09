@@ -17,6 +17,11 @@ extern "C" {
 #define MODE_SERVER 0x1
 #define NO_MODE     -1
 
+#define NO_DATA_FOUND -1
+#define IS_NOT_VOID 0xff
+#define IS_VOID 0
+
+
 #define UINT8_MAX 0xff
 #define ERROR_IPV4_DATA_OVERFLOW    0xf1
 #define ERROR_IPV4_NO_SYMBOL        0xf2    
@@ -30,8 +35,12 @@ typedef struct {
   unsigned char ip[4];
 } serverData;
  
+typedef struct {  
+  unsigned char ip[4];
+  unsigned char _update;
+  unsigned char remoteIp[20];
+} localInfo;
  
-
 static struct mod_config {
   int port_www;
   int udp_port;
@@ -40,13 +49,13 @@ static struct mod_config {
 };
 
 
-typedef struct  {
-  //unsigned char ip_aspected[4];
+typedef struct  {  
+  unsigned char isUsed;
   unsigned char ip_received[4];
   long long time_;
   unsigned char validate_data;
   unsigned char fresh_time;  
-  unsigned char _update;
+  unsigned char _update;  
 } memData;
 
 extern long long timeInMilliseconds(void);
@@ -56,12 +65,13 @@ extern void printBuffer(int size);
 extern void printStringDebug(char *str);
 extern void replace_char_from_string(char from, char to, char *str);
 extern void parseData(char* buff,void *_data);
-extern int findIp(void *_data,int struct_size);
+extern int findIp(void *_data);
 extern int memVal(void *_data,int size);
 extern void *update_fresh_data();
 extern void* udpServerThread(void *arg);
 extern int udpServer(int port);
 extern const char * get_ip();
+extern void getIP(unsigned char *out );
 
 
 #ifdef  __cplusplus
