@@ -29,6 +29,7 @@ extern "C" {
 #define ERROR_IPV4_INVALID_SYMBOL   0xf4
 #define ERROR_IPV4_NOT_ENOUGH_INPUT 0xf5
 
+
 typedef struct {
   unsigned char hostname[50];
   long long time;
