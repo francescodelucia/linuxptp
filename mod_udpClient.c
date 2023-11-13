@@ -26,7 +26,7 @@ void set_Config(void *m_c){
 
 void* udpClientThread(void *param)
 {    
-  memData md;   
+  memBlock md;   
   char ip[15] = {0};
   char tim_[20]={0};  
   char lip[15] = {0};
@@ -52,8 +52,8 @@ void* udpClientThread(void *param)
       addr.sin_port = htons(m_config.udp_port);
       addr.sin_addr.s_addr = inet_addr(ip);   
       bzero(buffer, 1024);
-      memcpy(&buffer,&md,sizeof(memData));      
-      for(int k=0;k<(sizeof(memData));k++){    
+      memcpy(&buffer,&md,sizeof(memBlock));      
+      for(int k=0;k<(sizeof(memBlock));k++){    
           printf("%i ",(unsigned char)buffer[k]);            
       }
       /*printf("\n");                

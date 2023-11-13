@@ -1,11 +1,11 @@
 #pragma once
-#ifndef __MOD_UDP_SERVER__
-  #define __MOD_UDP_SERVER__
-#include <unistd.h>
+#ifndef __MOD_UDP_SERVER_H__
+#define __MOD_UDP_SERVER_H__
 #ifdef  __cplusplus
 extern "C" {
 #endif
-
+#include <unistd.h>
+#include "mod_memManager.h"
 
 
 #define CONTENT_TYPE_TEXT 0
@@ -49,25 +49,15 @@ static struct mod_config {
   int remoteIP [4];
 };
 
-
-typedef struct  {  
-  unsigned char isUsed;
-  unsigned char ip_received[4];
-  long long time_;
-  unsigned char validate_data;
-  unsigned char fresh_time;  
-  unsigned char _update;  
-} memData;
-
 extern long long timeInMilliseconds(void);
 extern int mod_parse_ip(const uint8_t * string,uint8_t string_length,int* result);
-extern  struct mod_config get_base_mod_config(g);
+extern  struct mod_config get_base_mod_config();
 extern void printBuffer(int size);
 extern void printStringDebug(char *str);
 extern void replace_char_from_string(char from, char to, char *str);
 extern void parseData(char* buff,void *_data);
-extern int findIp(void *_data);
-extern int memVal(void *_data,int size);
+extern memBlock *findIp(void *_data);
+//extern int memVal(void *_data,int size);
 extern void *update_fresh_data();
 extern void* udpServerThread(void *arg);
 extern int udpServer(int port);
@@ -79,4 +69,4 @@ extern void getIP(unsigned char *out );
 }
 #endif
 
-#endif
+#endif //__MOD_UDP_SERVER__
