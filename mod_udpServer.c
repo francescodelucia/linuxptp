@@ -31,8 +31,6 @@ pthread_t tid_refresh;
 
 char _NetIp[20]={0};
 
-//unsigned char map_data[MAX_SIZE]={0};
-///char dataBuffer[MAX_SIZE][DMEMORY]={0};
 
 void updateServerData(serverData *sD){
 
@@ -45,37 +43,18 @@ void updateServerData(serverData *sD){
     host_entry = gethostbyname(host_name);  
     sprintf(sD->hostname,"%s",host_name);   
   }   
-  sD->time = timeInMilliseconds();      
-  if(sD->ip[0]==0 & sD->ip[1]==0 && sD->ip[2]==0 && sD->ip[3]==0){
+  sD->time = timeInMilliseconds();    
+  
+  if(*((uint32_t*)&sD->ip) == 0){
     char r[4];
     getIP(&r);          
-    sD->ip[0] = r[0];
+    *((uint32_t*)&sD->ip) = *((uint32_t*)&r);
+    /*sD->ip[0] = r[0];
     sD->ip[1] = r[1];
     sD->ip[2] = r[2];
-    sD->ip[3] = r[3];
+    sD->ip[3] = r[3];*/
   }  
 }
-/*
-static void saveFile(void* filename,void* data){
-    FILE *fp = NULL;
-    char buffer[MAX_SIZE] = {0};
-    memcpy(buffer,data,strlen(data));
-    //Get input from the user    
-    //create the file
-    fp = fopen(filename, "w");
-    if(fp == NULL)
-    {
-        printf("Error in creating the file\n");
-        exit(1);
-    }
-    //Write the buffer in file
-    fwrite(buffer, sizeof(buffer[0]), MAX_SIZE, fp);
-    //close the file
-    fclose(fp);
-    printf("File has been created successfully\n");
-    //return 0;
-}
-*/
 
 struct mod_config get_base_mod_config(){   
   struct mod_config m_conf;
@@ -223,20 +202,6 @@ memBlock  *findIp(void*_data){
   return searchElem(_data_list,_data);  
 }
 
-/*
-int memVal(void *_data,int size)
-{
-  printBufferSegment(size);
-  printBufferSegment(size+1);  
-  memcpy((void*)&dataBuffer[size],_data,DMEMORY);  
-  map_data[size] = IS_NOT_VOID;   
-  printf("memVal\n");
-  return 1;
-  //}
-  //return 0;
-}*/
-
-
 long long timeInMilliseconds(void) {
     struct timeval tv;
     gettimeofday(&tv,NULL);
@@ -308,12 +273,14 @@ const char * get_ip()
     return ret;
 }
 
-void get_live_data(char *result ) {     
+void get_live_data(char *result ) {        
   sprintf(result,"{\"data\":[");  
   serverData _sD;
-  memBlock *mmB;
-  memcpy(mmB,_data_list,DMEMORY);  
-  while (mmB != NULL) {        
+  memBlock *mmB=calloc(sizeof(memBlock*),1);  
+  printf("get_live_data #1\n");  
+  mmB = _data_list; 
+  //printf("get_live_data %i\n",mmB->ip_received[0]);  
+  while (mmB != NULL) {            
     sprintf(result,
       "%s{\"IP_CLIENT\":\"%i.%i.%i.%i\",\"TIME\":\"%llu\",\"DIFF_SERVER\":\"%llu\",\"FRESH_DATA\":\"%i\"},",
       result,
@@ -325,52 +292,22 @@ void get_live_data(char *result ) {
       abs(mmB->time_-_sD.time),
       mmB->fresh_time
     );          
-    mmB =  mmB->next;     
+    //mmB =  mmB->next;        
+    memcpy(mmB,mmB->next,sizeof(memBlock*)); 
+    printf("get_live_data #888 %s\n",result);
   }     
-  printf("########################!");
+  printf("get_live_data #4\n");
   if(result[strlen(result)-1]==','){
     result[strlen(result)-1]=0;  
   }  
+  printf("get_live_data #5\n");
   sprintf(result,"%s],\"local_millisecond\":\"%llu\"",result,_sD.time);  
   sprintf(result,"%s,\"host_name\":\"%s\"",result,_sD.hostname);    
   sprintf(result,"%s,\"host_ip\":\"%i.%i.%i.%i\"",result,_sD.ip[0],_sD.ip[1],_sD.ip[2],_sD.ip[3]);      
-  sprintf(result,"%s}",result);     
+  sprintf(result,"%s}",result);  
+  free(mmB); 
 }
-/*
-void removeData(int index_to_remove){
-  memset(dataBuffer[index_to_remove],0,DMEMORY);
-  map_data[index_to_remove] = IS_VOID;
-}*/
 
-/*int checkMemoryVoid(int index_to_check){  
-  return map_data[index_to_check]; 
-}*/
-/*
-void storeData(memData *_data){//,int *struct_size){
-  int find_=NO_DATA_FOUND;     
-  printf("storeData pre findIP\n");  
-  find_ = findIp(_data);  
-  printf("storeData after findIP\n");  
-  printf("---|%i|\n",find_);
-  //printMemDebug(_data);             
-  if(find_!=NO_DATA_FOUND){  
-    printf("storeData DATA_FOUND #1\n");  
-    addMemBlock(_data)
-    memVal(_data,find_);
-    printf("storeData DATA_FOUND #2\n");  
-  }else{                       
-    for(int k=0;k<=MAX_SIZE;k++){      
-      if(checkMemoryVoid(k) == IS_VOID){
-        printf("storeData IS_VOID #1\n");        
-        memVal(_data,k); 
-        map_data[k]=IS_NOT_VOID;
-        printf("storeData IS_VOID #2\n");        
-        return;         
-      }      
-    }                          
-  }  
-}
-*/
 
 void *update_fresh_data(void* data){
   while(1){    

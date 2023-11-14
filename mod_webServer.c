@@ -198,9 +198,9 @@ void output_embedded_html(int sockfd, const char *curdir, const char *path,int c
 
 
 void output_live_data(int sockfd) {
-  char *result=malloc(MAX_SIZE*MAX_SIZE);
-  get_live_data(result);
-  http_get_reply(sockfd, result,CONTENT_TYPE_JSON);    
+  char *result=malloc(MAX_SIZE*MAX_SIZE);  
+  get_live_data(result);  
+  http_get_reply(sockfd, result,CONTENT_TYPE_JSON);      
   free(result);
 }
 
