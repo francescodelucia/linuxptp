@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+          "type": "gdb",
+          "request": "launch",
+          "name": "Launch Program (SSH - HOME)",
+          "target": "/root/linuxptp/ptp4l",
+          "args": ["-i", "ens33", "-S", "-m","-w"],
+          "cwd": "${workspaceRoot}",
+          "ssh": {
+             "host": "192.168.0.106",
+             "cwd": "/home/shyabith/Sample",
+             "user": "root",
+             "password": "toor",
+             "port": 22,
+             "useAgent": false,
+             "forwardX11": false
+          }
+      }
+    ]
+    }
