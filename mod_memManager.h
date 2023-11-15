@@ -25,6 +25,7 @@ extern "C" {
     typedef struct {
         unsigned char isUsed;
         unsigned char ip_received[4];
+        unsigned char hostname[40];
         long long time_;
         unsigned char validate_data;
         unsigned char fresh_time;

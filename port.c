@@ -1373,13 +1373,8 @@ static void port_synchronize(struct port *p,
 		break;
 	}
 
-	last_state = clock_servo_state(p->clock);
-	//state = clock_synchronize(p->clock, t2, t1c);	
-	
-	//if(m!=NULL){	
-	char *ip = inet_ntoa(m->address.sin.sin_addr);
-	pr_info("ip master %s",ip);
-	
+	last_state = clock_servo_state(p->clock);	
+	char *ip = inet_ntoa(m->address.sin.sin_addr);		
 	state = clock_synchronize(p->clock, t2, t1c, ip);	
 	switch (state) {
 	case SERVO_UNLOCKED:

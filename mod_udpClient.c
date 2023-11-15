@@ -9,19 +9,15 @@
 #include <sys/time.h>
 #include <netdb.h>
 #include <netinet/in.h>
-//#include "mod_const.h"
 #include "mod_udpClient.h"
 #include "mod_udpServer.h"
 
-
 pthread_t tidClient;
-static struct mod_config m_config;
-
 localInfo _lInfo;
 
-
-void set_Config(void *m_c){  
-  memcpy(&m_config,m_c,sizeof(struct mod_config));
+void set_Config(void *m_c){    
+  memcpy(&m_config,m_c,sizeof(struct mod_config));  
+  set_Server_Config(m_c);
 }
 
 void* udpClientThread(void *param)
@@ -33,18 +29,17 @@ void* udpClientThread(void *param)
   int sockfd;
   struct sockaddr_in addr;
   char buffer[1024];    
-
+  unsigned char IP[4]={0};
   while(1){    
-    if(_lInfo._update == 1){
-      if((_lInfo.ip[0]+_lInfo.ip[1]+ _lInfo.ip[2]+ _lInfo.ip[3])==0){
-        unsigned char IP[4]={0};
+    if(_lInfo._update == 1){            
+      if (*((uint32_t*)&IP) == 0) {
         getIP(IP);  
-        memcpy(_lInfo.ip,IP,4);      
       }
-      sprintf(ip,"%s",_lInfo.remoteIp); 
-      md.isUsed = IS_NOT_VOID; 
+      memcpy(_lInfo.ip,IP ,4);            
+      sprintf(ip,"%s",_lInfo.remoteIp);       
       memcpy(md.ip_received,_lInfo.ip,4);    
       md.time_= timeInMilliseconds();  
+      getHostNameInfo(&(md.hostname));
       socklen_t addr_size;  
       sockfd = socket(AF_INET, SOCK_DGRAM, 0);
       memset(&addr, '\0', sizeof(addr));
@@ -52,16 +47,12 @@ void* udpClientThread(void *param)
       addr.sin_port = htons(m_config.udp_port);
       addr.sin_addr.s_addr = inet_addr(ip);   
       bzero(buffer, 1024);
-      memcpy(&buffer,&md,sizeof(memBlock));      
-      for(int k=0;k<(sizeof(memBlock));k++){    
-          printf("%i ",(unsigned char)buffer[k]);            
-      }
-      /*printf("\n");                
-      printf("%llu\n",md.time_);  */  
+      memcpy(&buffer,&md,sizeof(memBlock));            
       sendto(sockfd, buffer, 1024, 0, (struct sockaddr*)&addr, sizeof(addr));  
       _lInfo._update = 0;
+      close(sockfd);
     }
-    sleep(1);
+    usleep(1000);
   }
   return 0;
 }

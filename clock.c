@@ -2066,23 +2066,8 @@ enum servo_state clock_synchronize(struct clock *c, tmv_t ingress, tmv_t origin,
 		pr_info("master offset %10" PRId64 " s%d freq %+7.0f "
 			"path delay %9" PRId64,
 			tmv_to_nanoseconds(c->master_offset), state, adj,
-			tmv_to_nanoseconds(c->path_delay));			
-			
-		/*if(adr!=NULL){			
-				for(int k=0;k<(sizeof(struct address));k++){       
-          			printf("%i ",adr[k]);            			        			
-  				}	
-				printf("%i\n");
-				pr_info("1");
-				char ip[20]={0};
-				sprintf(ip,"%s",inet_ntoa(adr->sin.sin_addr));*/
-		pr_info("ip master %s",adr);
-		/*char _data[30] ={0};
-		sprintf(_data,"%s:%i",adr,mod_con)
-		*/
-		
-		updateData(adr);			
-			
+			tmv_to_nanoseconds(c->path_delay));								
+		updateData(adr);						
 	}
 
 	clock_notify_event(c, NOTIFY_TIME_SYNC);

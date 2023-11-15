@@ -14,10 +14,11 @@ memBlock* newMemBlock(memBlock* data) {
 
 void addMemBlock(memBlock** _list, memBlock* data) {    
      
-     memBlock *p_list = *_list;
+    memBlock *p_list = *_list;
     while (p_list != NULL) {
         if (*((uint32_t*)&p_list->ip_received) == *((uint32_t*)&data->ip_received)) {
-            *((uint32_t*)&p_list->time_) = data->time_;
+            p_list->time_ = data->time_;
+            p_list->fresh_time = 0;
             return;
         }
         p_list = p_list->next;
@@ -41,9 +42,9 @@ void delMemBlock(memBlock** _list, memBlock* data) {
     memBlock* elem = *_list;
     while (elem != NULL && (((uint32_t) * (elem->ip_received)) != ((uint32_t) * (data->ip_received)))) {
         elem = elem->next;
+        break;    
     }
-    if (elem == NULL) {
-        printf("Elemento non trovato\n");
+    if (elem == NULL) {        
         return;
     }
     if (elem == *_list) {
@@ -69,18 +70,3 @@ memBlock* searchElem(memBlock* _list, memBlock* data) {
     return NULL;
 }
 
-/*
-void  addElemfromIP(memBlock* _list, memBlock* data) {    
-    int isPresent = 0;
-    while (_list != NULL) {
-        if (*((uint32_t*)&_list->ip_received) == *((uint32_t*)&data->ip_received)){    
-            _list->time_ = data->time_;        
-            isPresent = 1;
-        }        
-        _list =  _list->next;        
-    }
-    if(isPresent==0){
-        addMemBlock(&_list,data);
-    }    
-}
-*/

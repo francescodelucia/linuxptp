@@ -42,28 +42,28 @@ typedef struct {
   unsigned char remoteIp[20];
 } localInfo;
  
+
 static struct mod_config {
   int port_www;
   int udp_port;
+  char iface[40];
   int mode;
-  int remoteIP [4];
-};
+  int remoteIP [4];  
+}m_config;
 
+extern void getHostNameInfo(char *out);
+extern void set_Server_Config(void *);
 extern long long timeInMilliseconds(void);
 extern int mod_parse_ip(const uint8_t * string,uint8_t string_length,int* result);
 extern  struct mod_config get_base_mod_config();
-extern void printBuffer(int size);
 extern void printStringDebug(char *str);
+extern void printMemDebug(char *str);
 extern void replace_char_from_string(char from, char to, char *str);
-extern void parseData(char* buff,void *_data);
 extern memBlock *findIp(void *_data);
-//extern int memVal(void *_data,int size);
 extern void* update_fresh_data();
 extern void* udpServerThread(void *arg);
 extern int udpServer(int port);
-extern const char * get_ip();
 extern void getIP(unsigned char *out );
-
 
 #ifdef  __cplusplus
 }

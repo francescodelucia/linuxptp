@@ -150,8 +150,11 @@ int main(int argc, char *argv[])
 			config = optarg;
 			break;
 		case 'i':
-			if (!config_create_interface(optarg, cfg))
+			if (!config_create_interface(optarg, cfg)){				
 				goto out;
+			}else{				
+				sprintf(m_conf.iface,"%s",optarg);
+			}
 			break;
 		case 'p':
 			req_phc = optarg;
@@ -207,12 +210,12 @@ int main(int argc, char *argv[])
 			goto out;
 		}
 	}	
-	/*#########################################*/
 	if(m_conf.mode!=NO_MODE){
 		if(m_conf.mode == MODE_SERVER){
 			if(udpServer(m_conf.udp_port)>0){		
-    			webServer(m_conf.port_www);  				
-  			}
+    			webServer(m_conf.port_www);  				  			
+			}
+			set_Config((void*)&m_conf);			
 			printf("\n###############MODE_SERVER###########\n");
 			printf("www port[%i] udp port[%i] mode [%i]\n",m_conf.port_www,m_conf.udp_port ,m_conf.mode) ;
 			printf("ip[%i.%i.%i.%i] \n",m_conf.remoteIP[0],m_conf.remoteIP[1],m_conf.remoteIP[2],m_conf.remoteIP[3]) ;
@@ -226,7 +229,6 @@ int main(int argc, char *argv[])
 			printf("####################################\n");
 		}			
 	}
-
 	if (config && (c = config_read(config, cfg))) {
 		return c;
 	}
