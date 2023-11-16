@@ -22,4 +22,4 @@ jobs:
         
                     
         - name: Configure Make
-          run: make 
+          run: make all
