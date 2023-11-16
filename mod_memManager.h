@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+
 #define DMEMORY sizeof(memBlock)
 
 #define MEM_DATA_CPY  memcpy(_new->nome,data.nome,strlen(data.nome));\
