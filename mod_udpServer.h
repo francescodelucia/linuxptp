@@ -7,7 +7,6 @@ extern "C" {
 #include <unistd.h>
 #include "mod_memManager.h"
 
-
 #define CONTENT_TYPE_TEXT 0
 #define CONTENT_TYPE_JSON 1
 #define MAX_SIZE    512
