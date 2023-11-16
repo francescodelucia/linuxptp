@@ -28,11 +28,6 @@ extern void get_live_data(char *result);
 pthread_t tid_web;
 
 
-
-/*
-extern char dataBuffer[MAX_SIZE][MAX_SIZE]={0};
-extern memData _data;
-*/
 void writeln_to_socket(int sockfd, const char *message) {
   write(sockfd, message, strlen(message));
   write(sockfd, "\r\n", 2);
