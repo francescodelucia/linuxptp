@@ -13,6 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: owner/repo@ref
+      - uses: francescodelucia/linuxptp
       - name: Configure Make
         run: make 
