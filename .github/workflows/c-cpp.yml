@@ -14,10 +14,12 @@ jobs:
 
     steps:        
         - uses: actions/checkout@v1
-          with: 
-            repository: pminkov/threadpool    
-            submodules: true
-            
+          
+        - name: Pull & update submodules recursively
+          run: |
+            git submodule update --init --recursive
+            git submodule update --recursive --remote                     
         
+                    
         - name: Configure Make
           run: make 
