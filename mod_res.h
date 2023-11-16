@@ -121,15 +121,4 @@ char *html ="<html><head>"
          "</script>"
          "</body></html>";
 
-/*
-"if(vals[4]==0){\n"
-                            "tr.bgColor =\"Yellow\";\n"
-                            "if(vals[4]>=10){\n"
-                                "tr.bgColor =\"Orange\";\n"
-                            "}\n"
-                        "}else{\n"
-                            "if(vals[4]>=10){\n"
-                                "tr.bgColor =\"Red\";}else{tr.bgColor =\"Green\";\n"
-                            "}\n"
-                        "}\n"
-*/                        
+                   
