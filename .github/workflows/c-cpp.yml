@@ -9,7 +9,7 @@ on:
 
 jobs:
   release_web:
-    name: -------
+    name: Web Release
     runs-on: ubuntu-latest
 
     steps:
