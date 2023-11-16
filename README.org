@@ -1,3 +1,4 @@
+ <img src="https://github.com/francescodelucia/linuxptp/actions/workflows/c-cpp.yml/badge.svg" /></a>
 #######################################################################
 
   This is not official rpositori of ptp.
