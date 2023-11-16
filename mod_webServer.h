@@ -8,13 +8,9 @@ extern "C" {
 
 
 struct request_pair;
-
 extern void writeln_to_socket(int sockfd, const char *message);
-
 extern void write_content_to_socket(int sockfd, const char *content,int content_type);
-   
 extern void http_404_reply(int sockfd);
-  
 extern void http_get_reply(int sockfd, const char *content,int content_type);  
 
 extern int is_get(char *text);
