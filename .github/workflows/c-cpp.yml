@@ -13,6 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: francescodelucia
+      - uses: owner/repo@ref
       - name: Configure Make
         run: make 
