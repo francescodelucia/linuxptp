@@ -12,14 +12,16 @@ jobs:
     name: Web Release
     runs-on: ubuntu-latest
 
-    steps:
+    steps:        
+        - uses: actions/checkout@v1
+          with: 
+            repository: org/parent_repository            
+            submodules: true
+            
         - name: Pull & update submodules recursively
           run: |
             git submodule update --init --recursive
-            git submodule update --recursive --remote     
-        
-        -  name: Compile
-           uses: actions/checkout@v1
+            git submodule update --recursive --remote                     
         
         - name: Configure Make
           run: make 
