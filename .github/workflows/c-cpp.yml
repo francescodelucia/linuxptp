@@ -1,0 +1,25 @@
+name: Release Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+    types: [closed]
+
+jobs:
+  release_web:
+    name: Web Release
+    runs-on: ubuntu-latest
+
+    steps:        
+        - uses: actions/checkout@v1
+          
+        - name: Pull & update submodules recursively
+          run: |
+            git submodule update --init --recursive
+            git submodule update --recursive --remote                     
+        
+                    
+        - name: Configure Make
+          run: make all

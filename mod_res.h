@@ -27,7 +27,7 @@ char *html ="<html><head>"
                 "tr.appendChild(th);\n"
                 "thead.appendChild(tr);\n" 
                 "th = document.createElement(\"th\");\n" 
-                "th.innerText=\"SERVER MILLISECOND\";\n"
+                "th.innerText=\"SERVER TIME\";\n"
                 "tr.appendChild(th);\n"
                 "th = document.createElement(\"th\");\n" 
                 "th.innerText=\"-------\";\n"
@@ -126,6 +126,7 @@ char *html ="<html><head>"
          "</script>"
          "</body></html>";
 
+<<<<<<< HEAD
 /*
 "if(vals[4]==0){\n"
                             "tr.bgColor =\"Yellow\";\n"
@@ -139,3 +140,6 @@ char *html ="<html><head>"
                         "}\n"
 */                        
 #endif
+=======
+                   
+>>>>>>> 125f1c59c744b519235a7dd1ff810433b6eed85f
