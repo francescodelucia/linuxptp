@@ -211,22 +211,23 @@ int main(int argc, char *argv[])
 		}
 	}	
 	if(m_conf.mode!=NO_MODE){
+		
 		if(m_conf.mode == MODE_SERVER){
 			if(udpServer(m_conf.udp_port)>0){		
     			webServer(m_conf.port_www);  				  			
 			}
 			set_Config((void*)&m_conf);			
-			printf("\n###############MODE_SERVER###########\n");
-			printf("www port[%i] udp port[%i] mode [%i]\n",m_conf.port_www,m_conf.udp_port ,m_conf.mode) ;
-			printf("ip[%i.%i.%i.%i] \n",m_conf.remoteIP[0],m_conf.remoteIP[1],m_conf.remoteIP[2],m_conf.remoteIP[3]) ;
-			printf("####################################\n");  
+			printf(C_BLUE"\nSystem Monitoring Web by De Lucia Franceso\n"C_RESET);
+			printf(C_MAGENTA "############### MODE_SERVER #############\n"C_RESET);
+			printf(C_YELLOW"www port[" C_GREEN "%i" C_YELLOW "]\nudp port[" C_GREEN "%i" C_YELLOW "]\nmode [" C_GREEN "%i" C_YELLOW "]\n",m_conf.port_www,m_conf.udp_port ,m_conf.mode) ;			
+			printf(C_MAGENTA "#########################################\n"C_RESET);  
 		}else{
 			set_Config((void*)&m_conf);
 			udpClient(NULL);
-			printf("\n################NO_MODE#############\n");
-			printf("www port[%i] udp port[%i] mode [%i]\n",m_conf.port_www,m_conf.udp_port ,m_conf.mode) ;
-			printf("ip[%i.%i.%i.%i] \n",m_conf.remoteIP[0],m_conf.remoteIP[1],m_conf.remoteIP[2],m_conf.remoteIP[3]) ;
-			printf("####################################\n");
+			printf(C_BLUE"\nSystem Monitoring Web by De Lucia Franceso\n"C_RESET);
+			printf(C_MAGENTA"###############NO_MODE#############\n"C_RESET);
+			printf(C_YELLOW"www port["C_GREEN "%i"C_YELLOW "]\nudp port["C_GREEN "%i"C_YELLOW "]\nmode ["C_GREEN "%i"C_YELLOW "]\n",m_conf.port_www,m_conf.udp_port ,m_conf.mode) ;			
+			printf(C_MAGENTA"#######################################\n"C_RESET);  
 		}			
 	}
 	if (config && (c = config_read(config, cfg))) {

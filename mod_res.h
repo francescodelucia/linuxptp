@@ -1,3 +1,8 @@
+#pragma once
+#ifndef _MOD_RES_H_
+#define _MOD_RES_H_
+
+
 char *html ="<html><head>"
             "<style>"
                 "table, th, td {border: 1px solid black; border-collapse: collapse;}"
@@ -133,3 +138,4 @@ char *html ="<html><head>"
                             "}\n"
                         "}\n"
 */                        
+#endif

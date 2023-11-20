@@ -288,8 +288,8 @@ int udpServer(int port)
   if (err != 0){ 
     printf("\ncan't create thread :[%s]", strerror(err));
     return 0;
-  }else{
-    printf("\n Thread created successfully\n");    
+    //}else{
+    //printf("\n Thread created successfully\n");    
   }
   return 1;
 }

@@ -30,6 +30,15 @@ extern "C" {
 #define ERROR_IPV4_NOT_ENOUGH_INPUT 0xf5
 
 
+#define C_RED     "\x1b[31m"
+#define C_GREEN   "\x1b[32m"
+#define C_YELLOW  "\x1b[33m"
+#define C_BLUE    "\x1b[34m"
+#define C_MAGENTA "\x1b[35m"
+#define C_CYAN    "\x1b[36m"
+#define C_WHITE   "\x1b[37m"
+#define C_RESET   "\x1b[0m"
+
 typedef struct {
   unsigned char hostname[50];
   long long time;

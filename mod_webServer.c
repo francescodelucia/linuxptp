@@ -272,7 +272,7 @@ int create_listening_socket(uint16_t port) {
   }
 
   if (listen(sockfd, SOMAXCONN) < 0) error("Couldn't listen");
-  printf("Running on port: %d\n", port);
+  //printf("Running on port: %d\n", port);
 
   return sockfd;
 }
