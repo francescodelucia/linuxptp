@@ -20,7 +20,8 @@ KBUILD_OUTPUT ?=
 DEBUG	=
 CC	= $(CROSS_COMPILE)gcc
 VER     = -DVER=$(version)
-CFLAGS	= -Wall $(VER) $(incdefs) $(DEBUG) $(EXTRA_CFLAGS)
+SIEMENS = -DSIEMENS_FIX_2
+CFLAGS	= -Wall $(VER) $(incdefs) $(DEBUG) $(EXTRA_CFLAGS) $(SIEMENS)
 LDLIBS	= -lm -lrt -pthread $(EXTRA_LDFLAGS)
 PRG	= ptp4l hwstamp_ctl nsm phc2sys phc_ctl pmc timemaster ts2phc tz2alt
 FILTERS	= filter.o mave.o mmedian.o

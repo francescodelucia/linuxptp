@@ -86,8 +86,11 @@ struct parent_ds {
 };
 
 #define CURRENT_UTC_OFFSET  37 /* 1 Jan 2017 */
-//#define INTERNAL_OSCILLATOR 0xA0
-#define INTERNAL_OSCILLATOR 0x20
+#ifndef SIEMENS_FIX
+	#define INTERNAL_OSCILLATOR 0xA0
+#else
+	#define INTERNAL_OSCILLATOR 0x20
+#endif
 #define CLOCK_CLASS_THRESHOLD_DEFAULT 248
 
 struct timePropertiesDS {

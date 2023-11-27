@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 	/* Process the command line arguments. */
 	progname = strrchr(argv[0], '/');
 	progname = progname ? 1+progname : argv[0];
-	while (EOF != (c = getopt_long(argc, argv, "AEP246HSLf:i:p:sl:mqvhwW:U:uR:",
+	while (EOF != (c = getopt_long(argc, argv, "AEP246HSLf:i:p:sl:mqvhwW:U:uR:j",
 				       opts, &index))) {		
 		switch (c) {
 		case 0:
@@ -202,6 +202,9 @@ int main(int argc, char *argv[])
 			}
 			m_conf.mode = MODE_CLIENT;					
 			break;
+		case 'j':
+			usage(progname);
+			goto out;
 		case '?':
 			usage(progname);
 			goto out;
