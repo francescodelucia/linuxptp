@@ -4,8 +4,8 @@ clear
 make clean
 make
 
-#scp ptp4l user@192.168.0.111:/home/user
-#scp ptp4l user@192.168.0.105:/home/user
+scp ptp4l user@192.168.0.119:/home/user
+scp ptp4l user@192.168.0.120:/home/user
 #scp ptp4l user@192.168.0.102:/home/user
 #scp ptp4l user@192.168.0.103:/home/user
 #scp ptp4l user@192.168.0.102:/home/user
